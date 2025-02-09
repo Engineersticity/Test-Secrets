@@ -4,8 +4,8 @@ import { testApiKey } from '../../backend';
 
 export const handler: Handler = async () => {
   try {
-    // Access secret using the correct method
-    const secretValue = await testApiKey.getValue();
+    // Access the secret using the correct property
+    const secretValue = testApiKey.secretValue;
     
     return {
       statusCode: 200,
