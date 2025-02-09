@@ -9,8 +9,8 @@ frontend:
   phases:
     build:
       commands:
-        # The $TEST_API_KEY will be available from Amplify Console secrets
-        - echo "VITE_TEST_API_KEY=$TEST_API_KEY" >> .env
+        - echo $secrets
+        - echo "VITE_SECRETS=$secrets" >> .env
         - npm run build
   artifacts:
     baseDirectory: dist
