@@ -1,6 +1,6 @@
 import { defineFunction } from '@aws-amplify/backend';
 
-export const getSecrets = defineFunction({
+export const getSecretsFunction = defineFunction({
   name: 'getSecrets',
-  entry: './handler.ts'
+  entry: './index.ts'
 });
