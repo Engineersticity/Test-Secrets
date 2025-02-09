@@ -1,61 +1,44 @@
 import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
+import type { Schema } from "./amplify/data/resource";
 
-// Initialize the Amplify client
 const client = generateClient<Schema>();
 
-// Define the Todo type for better type safety
-type Todo = Schema["Todo"]["type"];
-
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<string>("");
+  const [todos, setTodos] = useState<Array<Schema["Todo"]["model"]>>([]);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load secrets on mount
-    loadSecrets();
-
-    // Set up the subscription to todos
+    // Set up todos subscription
     const subscription = client.models.Todo.observeQuery().subscribe({
       next: ({ items }) => setTodos([...items]),
       error: (err) => setError(err.message)
     });
 
-    // Cleanup subscription on component unmount
+    // Fetch secrets
+    const fetchSecrets = async () => {
+      try {
+        const response = await client.models.Secrets.get();
+        console.log('Secrets loaded successfully');
+        setApiKey(response.testApiKey);
+      } catch (err) {
+        console.error('Error fetching secrets:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch secrets');
+      }
+    };
+
+    fetchSecrets();
+
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadSecrets = () => {
-    try {
-      const apiKey = import.meta.env.VITE_TEST_API_KEY;
-      
-      // Debug logs
-      console.log("API Key from Parameter Store:", apiKey);
-      
-      if (!apiKey) {
-        console.warn("No API key found in environment");
-        setError("API key not found");
-      }
-      
-      return apiKey;
-    } catch (err) {
-      console.error("Error in loadSecrets:", err);
-      setError("Failed to load API key");
-    }
-  };
-
-  const createTodo = async () => {
+  function createTodo() {
     const content = window.prompt("Todo content");
-    if (!content) return;
-
-    try {
-      await client.models.Todo.create({ content });
-    } catch (err) {
-      setError("Failed to create todo");
-      console.error("Error creating todo:", err);
+    if (content) {
+      client.models.Todo.create({ content });
     }
-  };
+  }
 
   return (
     <main className="p-4">
@@ -67,40 +50,26 @@ function App() {
         </div>
       )}
 
+      {apiKey && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          API Key loaded successfully!
+        </div>
+      )}
+
       <button 
         onClick={createTodo}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 mr-2"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
       >
         + New Todo
-      </button>
-      <button 
-        onClick={loadSecrets}
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        Test Load Secrets
       </button>
 
       <ul className="space-y-2">
         {todos.map((todo) => (
-          <li 
-            key={todo.id}
-            className="border p-2 rounded"
-          >
+          <li key={todo.id} className="border p-2 rounded">
             {todo.content}
           </li>
         ))}
       </ul>
-
-      <div className="mt-8 text-gray-600">
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a 
-          href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates"
-          className="text-blue-500 hover:text-blue-700"
-        >
-          Review next step of this tutorial
-        </a>
-      </div>
     </main>
   );
 }
