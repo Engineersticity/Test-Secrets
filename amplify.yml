@@ -10,7 +10,7 @@ frontend:
     preBuild:
       commands:
         - sudo dnf install -y jq
-        - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (.Name | split("/")[-1]) + "=\"" + .Value + "\""' > .env
+        - aws ssm get-parameters-by-path --path /amplify/shared/$AWS_APP_ID --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (.Name | split("/")[-1]) + "=\"" + .Value + "\""' > .env
         - cat .env
     build:
       commands:
