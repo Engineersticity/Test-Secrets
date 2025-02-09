@@ -28,31 +28,20 @@ function App() {
 
   const loadSecrets = () => {
     try {
-      // Debug environment variable
-      console.log("Raw VITE_SECRETS env var:", import.meta.env.VITE_SECRETS);
-      
-      let secrets;
-      try {
-        secrets = import.meta.env.VITE_SECRETS ? JSON.parse(import.meta.env.VITE_SECRETS) : {};
-      } catch (parseError) {
-        console.error("Failed to parse VITE_SECRETS:", parseError);
-        secrets = {};
-      }
-      
-      const testApiKey = secrets?.testApiKey;
+      const apiKey = import.meta.env.VITE_TEST_API_KEY;
       
       // Debug logs
-      console.log("Parsed secrets:", secrets);
-      console.log("testApiKey:", testApiKey);
+      console.log("API Key from Parameter Store:", apiKey);
       
-      if (!testApiKey) {
-        console.warn("No testApiKey found in secrets");
+      if (!apiKey) {
+        console.warn("No API key found in environment");
+        setError("API key not found");
       }
       
-      return testApiKey;
+      return apiKey;
     } catch (err) {
       console.error("Error in loadSecrets:", err);
-      setError("Failed to load secrets");
+      setError("Failed to load API key");
     }
   };
 

@@ -9,11 +9,8 @@ frontend:
   phases:
     build:
       commands:
-        - echo "Debug Printing secrets variable content:"
-        - echo "$secrets"
-        - echo "Debug Creating .env file with content:"
-        - echo "VITE_SECRETS=$secrets" | tee .env
-        - cat .env
+        # The $TEST_API_KEY will be available from Amplify Console secrets
+        - echo "VITE_TEST_API_KEY=$TEST_API_KEY" >> .env
         - npm run build
   artifacts:
     baseDirectory: dist
@@ -23,21 +20,3 @@ frontend:
     paths:
       - .npm/**/*
       - node_modules/**/*
-
-
-
-# frontend:
-#   phases:
-#     build:
-#       commands:
-#         - echo $secrets
-#         - echo "VITE_secrets=$secrets" >> .env
-#         - npm run build
-#   artifacts:
-#     baseDirectory: dist
-#     files:
-#       - "**/*"
-#   cache:
-#     paths:
-#       - .npm/**/*
-#       - node_modules/**/*
