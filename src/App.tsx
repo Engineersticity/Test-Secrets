@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/data";
-import { post } from 'aws-amplify/api';
+import { invokeFunction } from 'aws-amplify/api';
 import type { Schema, TodoType } from "../amplify/data/resource";
 
 const client = generateClient<Schema>();
@@ -18,16 +18,11 @@ function App() {
         error: (err: Error) => setError(err.message)
       });
 
-    // Fetch secrets using Lambda function
+    // Fetch secrets using direct Lambda invocation
     const fetchSecrets = async () => {
       try {
-        const response = await post({
-          apiName: 'api',
-          path: '/getSecrets'
-        });
-        
-        // Just log the response to verify what we're getting
-        console.log('API Response:', response);
+        const response = await invokeFunction({ functionName: 'getSecrets' });
+        console.log('Lambda Response:', response);
         setSecretsLoaded(true);
       } catch (err) {
         console.error('Error fetching secrets:', err);
@@ -64,7 +59,7 @@ function App() {
 
       {secretsLoaded && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          Secrets API call completed! Check console for response details.
+          Secrets function invoked! Check console for response details.
         </div>
       )}
 
