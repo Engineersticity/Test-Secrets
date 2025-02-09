@@ -4,9 +4,14 @@ import type { Schema } from "./amplify/data/resource";
 
 const client = generateClient<Schema>();
 
+type Secrets = {
+  testApiKey: string;
+  [key: string]: string;  // Allow for additional secrets
+};
+
 function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["model"]>>([]);
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [secrets, setSecrets] = useState<Secrets | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -19,9 +24,10 @@ function App() {
     // Fetch secrets
     const fetchSecrets = async () => {
       try {
-        const response = await client.models.Secrets.get();
+        const response = await client.models.getSecrets.get();
+        const parsedSecrets = JSON.parse(response);
         console.log('Secrets loaded successfully');
-        setApiKey(response.testApiKey);
+        setSecrets(parsedSecrets);
       } catch (err) {
         console.error('Error fetching secrets:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch secrets');
@@ -50,9 +56,13 @@ function App() {
         </div>
       )}
 
-      {apiKey && (
+      {secrets && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          API Key loaded successfully!
+          Secrets loaded successfully!
+          {/* For testing only - remove in production */}
+          <pre className="mt-2 text-xs">
+            {Object.keys(secrets).map(key => `${key}: loaded`).join('\n')}
+          </pre>
         </div>
       )}
 

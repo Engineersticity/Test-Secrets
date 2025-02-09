@@ -32,15 +32,11 @@ const schema = a.schema({
     .authorization((allow) => [allow.publicApiKey()]),
     
   // Add secrets query to the schema
-  Secrets: a
+  getSecrets: a
     .query()
     .authorization((allow) => [allow.publicApiKey()])
-    .returns(
-      a.object({
-        testApiKey: a.string(),
-        // Add more secrets as needed
-      })
-    ),
+    .arguments({})
+    .returns(a.string()),  // We'll return JSON string to handle dynamic secrets
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -52,14 +48,5 @@ export const data = defineData({
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
-  },
-  // Add the handler for secrets
-  handlers: {
-    getSecrets: async () => {
-      return {
-        testApiKey: secret('TEST_API_KEY'),
-        // Add more secrets as needed
-      };
-    }
   }
 });
