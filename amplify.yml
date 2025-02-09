@@ -7,11 +7,11 @@ backend:
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
-    preBuild:
-      commands:
-        - sudo dnf install -y jq
-        - aws ssm get-parameters-by-path --path /amplify/shared/$AWS_APP_ID --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (.Name | split("/")[-1]) + "=\"" + .Value + "\""' > .env
-        - cat .env
+    # preBuild:
+    #   commands:
+    #     - sudo dnf install -y jq
+    #     - aws ssm get-parameters-by-path --path /amplify/shared/$AWS_APP_ID --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (.Name | split("/")[-1]) + "=\"" + .Value + "\""' > .env
+    #     - cat .env
     build:
       commands:
         - npm run build

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/data";
-import { invokeFunction } from 'aws-amplify/api';
+import { invokeFunction } from 'aws-amplify/functions';
 import type { Schema, TodoType } from "../amplify/data/resource";
 
 const client = generateClient<Schema>();
