@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import { post } from 'aws-amplify/api';
-import type { Schema } from "../amplify/data/resource";
+import type { Schema, TodoType } from "../amplify/data/resource";
 
 const client = generateClient<Schema>();
 
@@ -11,18 +11,17 @@ type Secrets = {
 };
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["model"]>>([]);
+  const [todos, setTodos] = useState<TodoType[]>([]);
   const [secrets, setSecrets] = useState<Secrets | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set up todos subscription with proper types
-    const subscription = client.models.Todo.observeQuery({
-      limit: 100
-    }).subscribe({
-      next: ({ items }: { items: Array<Schema["Todo"]["model"]> }) => setTodos([...items]),
-      error: (err: Error) => setError(err.message)
-    });
+    // Set up todos subscription
+    const subscription = client.models.Todo.observeQuery()
+      .subscribe({
+        next: ({ items }: { items: TodoType[] }) => setTodos([...items]),
+        error: (err: Error) => setError(err.message)
+      });
 
     // Fetch secrets using Lambda function
     const fetchSecrets = async () => {
@@ -32,8 +31,8 @@ function App() {
           path: '/getSecrets'
         });
         
-        const secretsData = await response.json();
-        setSecrets(secretsData);
+        const responseData = JSON.parse(await response.text());
+        setSecrets(responseData);
         console.log('Secrets loaded successfully');
       } catch (err) {
         console.error('Error fetching secrets:', err);
