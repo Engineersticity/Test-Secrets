@@ -3,7 +3,8 @@ import { secret } from '@aws-amplify/backend';
 
 export const getSecrets = defineFunction({
   name: 'getSecrets',
-  handler: async () => {
+  // Use the correct function structure
+  run: async () => {
     try {
       const secrets = {
         testApiKey: await secret('TEST_API_KEY'),
