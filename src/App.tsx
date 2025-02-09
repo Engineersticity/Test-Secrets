@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/data";
+import { Amplify } from 'aws-amplify';
+import { fetchUserAttributes, fetchAuthSession } from 'aws-amplify/auth';
+import { post } from 'aws-amplify/api';
 import type { Schema } from "./amplify/data/resource";
 
 const client = generateClient<Schema>();
 
 type Secrets = {
   testApiKey: string;
-  [key: string]: string;  // Allow for additional secrets
+  [key: string]: string;
 };
 
 function App() {
@@ -15,19 +18,22 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set up todos subscription
     const subscription = client.models.Todo.observeQuery().subscribe({
       next: ({ items }) => setTodos([...items]),
       error: (err) => setError(err.message)
     });
 
-    // Fetch secrets
+    // Fetch secrets using Lambda function
     const fetchSecrets = async () => {
       try {
-        const response = await client.models.getSecrets.get();
-        const parsedSecrets = JSON.parse(response);
+        const response = await post({
+          apiName: 'api',
+          path: '/getSecrets'
+        });
+        
+        const secretsData = JSON.parse(response.body);
+        setSecrets(secretsData);
         console.log('Secrets loaded successfully');
-        setSecrets(parsedSecrets);
       } catch (err) {
         console.error('Error fetching secrets:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch secrets');
@@ -35,7 +41,6 @@ function App() {
     };
 
     fetchSecrets();
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -59,10 +64,6 @@ function App() {
       {secrets && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
           Secrets loaded successfully!
-          {/* For testing only - remove in production */}
-          <pre className="mt-2 text-xs">
-            {Object.keys(secrets).map(key => `${key}: loaded`).join('\n')}
-          </pre>
         </div>
       )}
 
