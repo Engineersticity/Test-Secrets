@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { getSecretsFunction } from "../functions/getSecrets/resource";
 
 const schema = a.schema({
   Todo: a
@@ -6,10 +7,15 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+
+  getSecrets: a
+    .query()
+    .arguments({})
+    .returns(a.string())
+    .handler(getSecretsFunction),
 });
 
 export type Schema = ClientSchema<typeof schema>;
-export type TodoType = Schema["Todo"]["type"];
 
 export const data = defineData({
   schema,
