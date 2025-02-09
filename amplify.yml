@@ -1,4 +1,7 @@
 version: 1
+env:
+  variables:
+    TEST_API_KEY: $(aws ssm get-parameters --names TEST_API_KEY --with-decryption --output text | awk '{print $7}')
 backend:
   phases:
     build:
@@ -9,8 +12,7 @@ frontend:
   phases:
     build:
       commands:
-        - echo $secrets
-        - echo "VITE_SECRETS=$secrets" >> .env
+        - echo "VITE_TEST_API_KEY=$TEST_API_KEY" >> .env
         - npm run build
   artifacts:
     baseDirectory: dist
