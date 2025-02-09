@@ -1,11 +1,12 @@
-import { defineBackend } from '@aws-amplify/backend';
-import { auth } from './auth/resource';
-import { data } from './data/resource';
-import { getSecretsFunction } from './functions/getSecrets/resource';
+// amplify/backend.ts
+import { defineBackend, secret } from '@aws-amplify/backend';
+import { getSecret } from './functions/get-secret/resource';
 
-export const backend = defineBackend({
-  auth,
-  data,
-  // Export the function directly
-  getSecrets: getSecretsFunction
+export const testApiKey = secret();
+
+defineBackend({
+  getSecret,
+  secrets: {
+    testApiKey
+  }
 });

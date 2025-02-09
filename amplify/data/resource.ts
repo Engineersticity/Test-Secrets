@@ -1,28 +1,18 @@
+// amplify/data/resource.ts
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { getSecretsFunction } from "../functions/getSecrets/resource";
+import { getSecret } from "../functions/get-secret/resource";
 
 const schema = a.schema({
-  Todo: a
-    .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.publicApiKey()]),
-
-  getSecrets: a
+  getSecret: a
     .query()
-    .arguments({})
     .returns(a.string())
-    .handler(getSecretsFunction),
+    .handler(a.handler.function(getSecret))
 });
 
 export type Schema = ClientSchema<typeof schema>;
-
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: "iam",
   }
 });
