@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/data";
-import { Amplify } from 'aws-amplify';
-import { fetchUserAttributes, fetchAuthSession } from 'aws-amplify/auth';
 import { post } from 'aws-amplify/api';
-import type { Schema } from "./amplify/data/resource";
+import type { Schema } from "../amplify/data/resource";
 
 const client = generateClient<Schema>();
 
@@ -18,9 +16,12 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const subscription = client.models.Todo.observeQuery().subscribe({
-      next: ({ items }) => setTodos([...items]),
-      error: (err) => setError(err.message)
+    // Set up todos subscription with proper types
+    const subscription = client.models.Todo.observeQuery({
+      limit: 100
+    }).subscribe({
+      next: ({ items }: { items: Array<Schema["Todo"]["model"]> }) => setTodos([...items]),
+      error: (err: Error) => setError(err.message)
     });
 
     // Fetch secrets using Lambda function
@@ -31,7 +32,7 @@ function App() {
           path: '/getSecrets'
         });
         
-        const secretsData = JSON.parse(response.body);
+        const secretsData = await response.json();
         setSecrets(secretsData);
         console.log('Secrets loaded successfully');
       } catch (err) {
@@ -44,10 +45,16 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  function createTodo() {
+  async function createTodo() {
     const content = window.prompt("Todo content");
     if (content) {
-      client.models.Todo.create({ content });
+      try {
+        await client.models.Todo.create({
+          content,
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to create todo');
+      }
     }
   }
 
