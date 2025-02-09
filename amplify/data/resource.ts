@@ -1,28 +1,5 @@
-// import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-
-// const schema = a.schema({
-//   Todo: a
-//     .model({
-//       content: a.string(),
-//     })
-//     .authorization((allow) => [allow.publicApiKey()]),
-// });
-
-// export type Schema = ClientSchema<typeof schema>;
-
-// export const data = defineData({
-//   schema,
-//   authorizationModes: {
-//     defaultAuthorizationMode: "apiKey",
-//     // API Key is used for a.allow.public() rules
-//     apiKeyAuthorizationMode: {
-//       expiresInDays: 30,
-//     },
-//   },
-// });
-
-
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { getSecrets } from '../functions/getSecrets/resource';
 
 const schema = a.schema({
   Todo: a
@@ -31,13 +8,13 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.publicApiKey()]),
     
-  // Update the getSecrets query with authorization and handler
+  // Update the getSecrets query with the function reference
   getSecrets: a
     .query()
     .authorization((allow) => [allow.publicApiKey()])
     .arguments({})
     .returns(a.string())
-    .handler('getSecrets')  // Reference to our Lambda function
+    .handler(getSecrets)  // Pass the actual function reference
 });
 
 export type Schema = ClientSchema<typeof schema>;
