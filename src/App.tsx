@@ -28,11 +28,15 @@ function App() {
       try {
         const response = await post({
           apiName: 'api',
-          path: '/getSecrets'
-        });
+          path: '/getSecrets',
+          options: {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        }) as { data: Secrets };
         
-        const responseData = JSON.parse(await response.text());
-        setSecrets(responseData);
+        setSecrets(response.data);
         console.log('Secrets loaded successfully');
       } catch (err) {
         console.error('Error fetching secrets:', err);
