@@ -9,9 +9,9 @@ frontend:
   phases:
     build:
       commands:
-        - echo "Debug: Printing secrets variable content:"
+        - echo "Debug Printing secrets variable content:"
         - echo "$secrets"
-        - echo "Debug: Creating .env file with content:"
+        - echo "Debug Creating .env file with content:"
         - echo "VITE_SECRETS=$secrets" | tee .env
         - cat .env
         - npm run build
