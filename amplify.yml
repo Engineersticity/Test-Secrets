@@ -1,7 +1,8 @@
 version: 1
 env:
   variables:
-    TEST_API_KEY: $(aws ssm get-parameters --names /amplify/shared/d2akegycjuaux7/TEST_API_KEY --with-decryption --output text | awk '{print $7}')
+    # Get all secrets under the shared path and format them for .env file
+    ALL_SECRETS: $(aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (split("/")[-1]) + "=\"" + .Value + "\""')
 backend:
   phases:
     build:
@@ -12,7 +13,8 @@ frontend:
   phases:
     build:
       commands:
-        - echo "VITE_TEST_API_KEY=$TEST_API_KEY" >> .env
+        # Write all secrets to .env file
+        - echo "$ALL_SECRETS" > .env
         - cat .env
         - npm run build
   artifacts:
