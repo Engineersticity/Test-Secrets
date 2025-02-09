@@ -31,12 +31,13 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.publicApiKey()]),
     
-  // Add secrets query to the schema
+  // Update the getSecrets query with authorization and handler
   getSecrets: a
     .query()
     .authorization((allow) => [allow.publicApiKey()])
     .arguments({})
-    .returns(a.string()),  // We'll return JSON string to handle dynamic secrets
+    .returns(a.string())
+    .handler('getSecrets')  // Reference to our Lambda function
 });
 
 export type Schema = ClientSchema<typeof schema>;
