@@ -51,7 +51,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - dnf install -y jq
+        - sudo dnf install -y jq
         # Debug: Look at raw output
         - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json > debug.json
         - cat debug.json
