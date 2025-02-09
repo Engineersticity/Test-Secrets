@@ -25,14 +25,38 @@
 #       - node_modules/**/*
 
 
+# version: 1
+# frontend:
+#   phases:
+#     preBuild:
+#       commands:
+#         - sudo dnf install -y jq
+#         # Move the secrets fetching here after jq is installed
+#         - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (split("/")[-1]) + "=\"" + .Value + "\""' > .env
+#         - cat .env
+#     build:
+#       commands:
+#         - npm run build
+#   artifacts:
+#     baseDirectory: dist
+#     files:
+#       - '**/*'
+#   cache:
+#     paths:
+#       - .npm/**/*
+#       - node_modules/**/*
+
 version: 1
 frontend:
   phases:
     preBuild:
       commands:
-        - sudo dnf install -y jq
-        # Move the secrets fetching here after jq is installed
-        - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (split("/")[-1]) + "=\"" + .Value + "\""' > .env
+        - dnf install -y jq
+        # Debug: Look at raw output
+        - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json > debug.json
+        - cat debug.json
+        # Process the parameters
+        - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (.Name | split("/")[-1]) + "=\"" + .Value + "\""' > .env
         - cat .env
     build:
       commands:
