@@ -4,10 +4,13 @@ import { testApiKey } from '../../backend';
 
 export const handler: Handler = async () => {
   try {
+    // Access secret using the correct method
+    const secretValue = await testApiKey.getValue();
+    
     return {
       statusCode: 200,
       body: JSON.stringify({
-        secret: testApiKey.value
+        secret: secretValue
       }),
       headers: {
         "Content-Type": "application/json",
