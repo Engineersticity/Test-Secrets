@@ -10,7 +10,7 @@ frontend:
     build:
       commands:
         - echo $secrets
-        - echo "VITE_secrets=$secrets" >> .env
+        - echo "VITE_SECRETS=$secrets" >> .env
         - npm run build
   artifacts:
     baseDirectory: dist
