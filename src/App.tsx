@@ -5,14 +5,9 @@ import type { Schema, TodoType } from "../amplify/data/resource";
 
 const client = generateClient<Schema>();
 
-type Secrets = {
-  testApiKey: string;
-  [key: string]: string;
-};
-
 function App() {
   const [todos, setTodos] = useState<TodoType[]>([]);
-  const [secrets, setSecrets] = useState<Secrets | null>(null);
+  const [secretsLoaded, setSecretsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,16 +23,12 @@ function App() {
       try {
         const response = await post({
           apiName: 'api',
-          path: '/getSecrets',
-          options: {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        }) as { data: Secrets };
+          path: '/getSecrets'
+        });
         
-        setSecrets(response.data);
-        console.log('Secrets loaded successfully');
+        // Just log the response to verify what we're getting
+        console.log('API Response:', response);
+        setSecretsLoaded(true);
       } catch (err) {
         console.error('Error fetching secrets:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch secrets');
@@ -71,9 +62,9 @@ function App() {
         </div>
       )}
 
-      {secrets && (
+      {secretsLoaded && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          Secrets loaded successfully!
+          Secrets API call completed! Check console for response details.
         </div>
       )}
 
