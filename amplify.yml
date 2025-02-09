@@ -30,7 +30,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - dnf install -y jq
+        - sudo dnf install -y jq
         # Move the secrets fetching here after jq is installed
         - aws ssm get-parameters-by-path --path /amplify/shared/d2akegycjuaux7 --recursive --with-decryption --output json | jq -r '.Parameters[] | "VITE_" + (split("/")[-1]) + "=\"" + .Value + "\""' > .env
         - cat .env
