@@ -26,23 +26,33 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadSecrets = async () => {
+  const loadSecrets = () => {
     try {
-      // Use environment variables securely
-      if (!import.meta.env.VITE_SECRETS) {
-        throw new Error("VITE_SECRETS environment variable is not defined");
+      // Debug environment variable
+      console.log("Raw VITE_SECRETS env var:", import.meta.env.VITE_SECRETS);
+      
+      let secrets;
+      try {
+        secrets = import.meta.env.VITE_SECRETS ? JSON.parse(import.meta.env.VITE_SECRETS) : {};
+      } catch (parseError) {
+        console.error("Failed to parse VITE_SECRETS:", parseError);
+        secrets = {};
       }
       
-      const secrets = JSON.parse(import.meta.env.VITE_SECRETS);
-      const testApiKey = secrets["testApiKey"];
+      const testApiKey = secrets?.testApiKey;
       
-      // Debug logs for testing
-      console.log("Full secrets object:", secrets);
+      // Debug logs
+      console.log("Parsed secrets:", secrets);
       console.log("testApiKey:", testApiKey);
+      
+      if (!testApiKey) {
+        console.warn("No testApiKey found in secrets");
+      }
+      
       return testApiKey;
     } catch (err) {
+      console.error("Error in loadSecrets:", err);
       setError("Failed to load secrets");
-      console.error("Error loading secrets:", err);
     }
   };
 
