@@ -1,39 +1,25 @@
-// amplify/functions/get-secret/handler.ts
-// import { type Handler } from 'aws-lambda';
-// import { testApiKey } from '../../backend';
+import { secret } from '@aws-amplify/backend';
+import { AppSyncResolverEvent } from 'aws-lambda';
 
-// export const handler: Handler = async () => {
-//   try {
-//     // Access the secret using the correct property
-//     const secretValue = testApiKey.secretValue;
-    
-//     return {
-//       statusCode: 200,
-//       body: JSON.stringify({
-//         secret: secretValue
-//       }),
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Access-Control-Allow-Origin": "*"
-//       }
-//     };
-//   } catch (error) {
-//     return {
-//       statusCode: 500,
-//       body: JSON.stringify({ error: 'Failed to fetch secret' }),
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Access-Control-Allow-Origin": "*"
-//       }
-//     };
-//   }
-// };
+type ResolverEvent = AppSyncResolverEvent<{ name?: string | undefined }, any>;
 
-import type { Schema } from "../../data/resource"
+// Store the secret outside the handler function
+const apiKeySecret = secret('testApiKey');
 
-export const handler: Schema["sayHello"]["functionHandler"] = async (event) => {
+export const handler = async (event: ResolverEvent) => {
   // arguments typed from `.arguments()`
-  const { name } = event.arguments
+  const { name } = event.arguments;
   // return typed from `.returns()`
-  return `Hello, ${name}!`
-}
+
+  if (name === "apiKey") {
+    try {
+      // Fetch the secret's value
+      return apiKeySecret;
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+      // Return an error message or null
+      return "Error: could not fetch secret";
+    }
+  }
+  return `Hello, ${name}!`;
+};
