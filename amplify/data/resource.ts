@@ -15,13 +15,15 @@ const schema = a.schema({
     name: a.string(),
   })
   .returns(a.string())
-  .handler(a.handler.function(sayHello)),
+  .handler(a.handler.function(sayHello))
+  .authorization((allow: { publicApiKey: () => any; }) => [allow.publicApiKey()])
+  ,
 });
 
 export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "iam",
+    defaultAuthorizationMode: "apiKey",
   }
 });
