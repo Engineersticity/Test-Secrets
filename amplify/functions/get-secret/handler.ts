@@ -53,7 +53,7 @@
 // };
 
 // amplify/functions/say-hello/handler.ts
-import { env } from '$amplify/env/say-hello';
+import { env } from '$amplify/env/get-secret';
 import { AppSyncResolverEvent } from 'aws-lambda';
 
 type ResolverEvent = AppSyncResolverEvent<{ name?: string | undefined }, any>;
