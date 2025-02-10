@@ -10,10 +10,14 @@ const SecretFetcher: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
+
   const fetchSecret = async () => {
     setLoading(true);
     try {
-      const response = await client.queries.getSecret();
+      const response = await 
+      client.queries.sayHello({
+        name: "sticity",
+      });
       setSecret(response);
       setError('');
     } catch (err) {
