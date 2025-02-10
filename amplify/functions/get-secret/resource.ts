@@ -1,4 +1,4 @@
-// amplify/functions/say-hello/resource.ts
+
 import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const sayHello = defineFunction({
